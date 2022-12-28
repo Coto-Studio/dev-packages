@@ -1,2 +1,7 @@
 ---
 # tasks file for npm-packages
+- name: Upgrade Global NPM Packages
+  include_tasks: upgrade-npm-packages.yaml
+  loop: "{{ npm_packages }}"
+  loop_control:
+    loop_var: package

@@ -1,2 +1,3 @@
 ---
 # defaults file for npm-packages
+npm_packages: []

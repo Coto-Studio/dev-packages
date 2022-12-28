@@ -1,0 +1,6 @@
+---
+- name: "Upgrading global npm package: {{ package }}"
+  npm:
+    global: true
+    name: "{{ package }}"
+    state: latest
