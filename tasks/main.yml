@@ -1,7 +1,47 @@
 ---
 # tasks file for npm-packages
-- name: Upgrade Global NPM Packages
-  include_tasks: upgrade-npm-packages.yaml
-  loop: "{{ npm_packages }}"
+- name: Ensure System Packages are installed
+  package:
+    name: "{{ item.name | default(item) }}"
+    state: "{{ item.state | default('present') }}"
+  loop: "{{ system_packages_dev }}"
   loop_control:
-    loop_var: package
+    label: "{{ item.name | default(item) }}"
+  when: ansible_system == "Linux"
+
+- name: Ensure Homebrew Packages are installed
+  homebrew:
+    name: "{{ item.name | default(item) }}"
+    state: "{{ item.state | default('latest') }}"
+  loop: "{{ homebrew_packages_dev }}"
+  loop_control:
+    label: "{{ item.name | default(item) }}"
+  when: ansible_pkg_mgr == "homebrew"
+
+- name: Ensure Homebrew Cask Packages are installed
+  homebrew_cask:
+    name: "{{ item.name | default(item) }}"
+    state: "{{ item.state | default('upgraded') }}"
+    greedy: "{{ item.greedy | default(true) }}"
+  loop: "{{ homebrew_cask_packages_dev }}"
+  loop_control:
+    label: "{{ item.name | default(item) }}"
+  when: ansible_pkg_mgr == "homebrew"
+
+- name: Ensure pip(3) Packages are installed
+  pip:
+    name: "{{ item.name | default(item) }}"
+    state: "{{ item.state | default('latest') }}"
+    version: "{{ item.version | default(omit) }}"
+  loop: "{{ pip_packages_dev }}"
+  loop_control:
+    label: "{{ item.name | default(item) }}"
+
+- name: Ensure NPM Packages are installed
+  npm:
+    global: true
+    name: "{{ item.name | default(item) }}"
+    state: "{{ item.state | default('latest') }}"
+  loop: "{{ npm_packages_dev }}"
+  loop_control:
+    label: "{{ item.name | default(item) }}"

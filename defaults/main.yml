@@ -1,3 +1,7 @@
 ---
 # defaults file for npm-packages
-npm_packages: []
+system_packages_dev: []
+homebrew_packages_dev: []
+homebrew_cask_packages_dev: []
+pip_packages_dev: []
+npm_packages_dev: []
