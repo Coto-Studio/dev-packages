@@ -24,6 +24,7 @@
     state: "{{ item.state | default('upgraded') }}"
     greedy: "{{ item.greedy | default(true) }}"
     install_options: "no-quarantine"
+    sudo_password: sudo_pass
   loop: "{{ homebrew_cask_packages_dev }}"
   loop_control:
     label: "{{ item.name | default(item) }}"
