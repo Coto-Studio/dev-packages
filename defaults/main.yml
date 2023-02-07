@@ -6,3 +6,4 @@ homebrew_packages_dev: []
 homebrew_cask_packages_dev: []
 pip_packages_dev: []
 npm_packages_dev: []
+node_path: ""

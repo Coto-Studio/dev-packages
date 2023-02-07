@@ -53,6 +53,8 @@
     global: true
     name: "{{ item.name | default(item) }}"
     state: "{{ item.state | default('latest') }}"
+  environment:
+    PATH: "{{ ansible_env.PATH }}:{{ node_path }}"
   loop: "{{ npm_packages_dev }}"
   loop_control:
     label: "{{ item.name | default(item) }}"
