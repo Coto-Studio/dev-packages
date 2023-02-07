@@ -33,7 +33,7 @@
     state: "{{ item.state | default('upgraded') }}"
     greedy: "{{ item.greedy | default(true) }}"
     install_options: "no-quarantine"
-    sudo_password: sudo_pass
+    sudo_password: "{{ ansible_become_password }}"
   loop: "{{ homebrew_cask_packages_dev }}"
   loop_control:
     label: "{{ item.name | default(item) }}"
