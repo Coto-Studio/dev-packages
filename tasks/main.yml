@@ -1,5 +1,14 @@
 ---
 # tasks file for npm-packages
+- name: Set homebrew path for Intel Mac
+  set_fact:
+    homebrew_path: /usr/local/
+
+- name: Set homebrew path for M1 Mac
+  set_fact:
+    homebrew_path: /opt/homebrew/
+  when: ansible_architecture == "arm64"
+
 - name: Ensure System Packages are installed
   package:
     name: "{{ item.name | default(item) }}"
@@ -44,6 +53,8 @@
     name: "{{ item.name | default(item) }}"
     state: "{{ item.state | default('latest') }}"
     version: "{{ item.version | default(omit) }}"
+  environment:
+    PATH: "{{ homebrew_path }}{{ python_path }}:{{ ansible_env.PATH }}"
   loop: "{{ pip_packages_dev }}"
   loop_control:
     label: "{{ item.name | default(item) }}"
@@ -54,7 +65,7 @@
     name: "{{ item.name | default(item) }}"
     state: "{{ item.state | default('latest') }}"
   environment:
-    PATH: "{{ ansible_env.PATH }}:{{ node_path }}"
+    PATH: "{{ homebrew_path }}{{ node_path }}:{{ ansible_env.PATH }}"
   loop: "{{ npm_packages_dev }}"
   loop_control:
     label: "{{ item.name | default(item) }}"
