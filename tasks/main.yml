@@ -48,52 +48,6 @@
     label: "{{ item.name | default(item) }}"
   when: ansible_pkg_mgr == "homebrew"
 
-- name: Install & Rescue pip_packages_dev
-  when: pip_packages_dev
-  block:
-    - name: Ensure pip3 packaging is installed
-      pip:
-        name: packaging
-        state: latest
-
-  rescue:
-    - name: Get python path of python3
-      command:
-        cmd: "ls -lah {{ homebrew_path }}/bin/python3"
-      register: python_path
-
-    - name: Set python3 path
-      set_fact:
-        python_env_path: "{{ python_path.stdout | regex_search('(Cellar/python@.*\/[0-9.]{1,}\/)') }}"
-
-    - name: Ensure python path in linked correctly
-      command:
-        cmd: "{{ homebrew_path }}{{ python_bin_path }}python3 -m venv {{ homebrew_path }}{{ python_env_path }}"
-
-    - name: Source bin/activate
-      shell: "source {{ homebrew_path }}{{ python_env_path }}bin/activate"
-
-    - name: Upgrade pip3
-      command:
-        cmd: "{{ homebrew_path }}{{ python_bin_path }}pip3 install --upgrade pip"
-
-    - name: Set ansible_python_interpreter path
-      set_fact:
-        ansible_python_interpreter: "{{ homebrew_path }}{{ python_bin_path }}/python3"
-
-  always:
-    - name: Ensure pip(3) Packages are installed
-      pip:
-        name: "{{ item.name | default(item) }}"
-        state: "{{ item.state | default('latest') }}"
-        version: "{{ item.version | default(omit) }}"
-      environment:
-        PATH: "{{ homebrew_path }}{{ python_bin_path }}:{{ ansible_env.PATH }}"
-      loop: "{{ pip_packages_dev }}"
-      loop_control:
-        label: "{{ item.name | default(item) }}"
-      tags: python
-
 - name: Ensure NPM Packages are installed
   npm:
     global: true
@@ -104,3 +58,38 @@
   loop: "{{ npm_packages_dev }}"
   loop_control:
     label: "{{ item.name | default(item) }}"
+
+- name: Install & Rescue pip_packages_dev
+  when: pip_packages_dev
+  block:
+    - name: Ensure pip3 packaging is installed
+      pip:
+        name: pipx
+        state: latest
+
+  rescue:
+    - name: Set python3 path
+      set_fact:
+        python_env_path: "{{ ansible_env['HOME'] }}/.venv"
+
+    - name: Ensure python path in linked correctly
+      command:
+        cmd: "python3 -m venv {{ python_env_path }}"
+
+    - name: Source bin/activate
+      shell: "source {{ python_env_path }}/bin/activate"
+
+    - name: Set ansible_python_interpreter path
+      set_fact:
+        ansible_python_interpreter: "{{ python_env_path }}/bin/python3"
+
+  always:
+    - name: Ensure pip(3) Packages are installed
+      pip:
+        name: "{{ item.name | default(item) }}"
+        state: "{{ item.state | default('latest') }}"
+        version: "{{ item.version | default(omit) }}"
+      loop: "{{ pip_packages_dev }}"
+      loop_control:
+        label: "{{ item.name | default(item) }}"
+      tags: python
